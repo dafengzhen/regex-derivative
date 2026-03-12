@@ -1,56 +1,12 @@
 import type { Token } from './types.ts';
+
 import { TOKEN_TYPES, type TokenType } from './types.ts';
 
-function tokenTypeFromSingleCharCode(codePoint: number): TokenType | undefined {
-  switch (codePoint) {
-    case 46:
-      return TOKEN_TYPES.DOT;
-    case 42:
-      return TOKEN_TYPES.STAR;
-    case 43:
-      return TOKEN_TYPES.PLUS;
-    case 63:
-      return TOKEN_TYPES.QUESTION;
-    case 123:
-      return TOKEN_TYPES.LBRACE;
-    case 125:
-      return TOKEN_TYPES.RBRACE;
-    case 44:
-      return TOKEN_TYPES.COMMA;
-    case 91:
-      return TOKEN_TYPES.LBRACKET;
-    case 93:
-      return TOKEN_TYPES.RBRACKET;
-    case 94:
-      return TOKEN_TYPES.CARET;
-    case 36:
-      return TOKEN_TYPES.DOLLAR;
-    case 40:
-      return TOKEN_TYPES.LPAREN;
-    case 41:
-      return TOKEN_TYPES.RPAREN;
-    case 124:
-      return TOKEN_TYPES.PIPE;
-    case 38:
-      return TOKEN_TYPES.AMPERSAND;
-    case 33:
-      return TOKEN_TYPES.BANG;
-    case 45:
-      return TOKEN_TYPES.DASH;
-    default:
-      return undefined;
-  }
-}
-
-function isWhitespaceCode(codePoint: number): boolean {
-  return (
-    codePoint === 32 || codePoint === 9 || codePoint === 10 || codePoint === 13 || codePoint === 12
-  );
-}
-
 export class Lexer {
-  private readonly source: string;
   private offset = 0;
+
+  private readonly source: string;
+
   private readonly tokens: Token[] = [];
 
   constructor(source: string) {
@@ -79,20 +35,20 @@ export class Lexer {
       const tokenType = tokenTypeFromSingleCharCode(codePoint);
       if (tokenType !== undefined) {
         if (tokenType === TOKEN_TYPES.DASH) {
-          tokens.push({ type: tokenType, position, value: '-' });
+          tokens.push({ position, type: tokenType, value: '-' });
         } else {
-          tokens.push({ type: tokenType, position });
+          tokens.push({ position, type: tokenType });
         }
         offset += 1;
         continue;
       }
 
-      tokens.push({ type: TOKEN_TYPES.CHAR, position, value: source[offset] });
+      tokens.push({ position, type: TOKEN_TYPES.CHAR, value: source[offset] });
       offset += 1;
     }
 
     this.offset = offset;
-    tokens.push({ type: TOKEN_TYPES.EOF, position: offset });
+    tokens.push({ position: offset, type: TOKEN_TYPES.EOF });
     return tokens;
   }
 
@@ -105,29 +61,76 @@ export class Lexer {
     const escapedChar = this.source[escapeOffset];
 
     switch (escapedChar) {
+      case ' ':
+        tokens.push({ position, type: TOKEN_TYPES.CHAR, value: ' ' });
+        return escapeOffset + 1;
       case 'd':
       case 'D':
-      case 'w':
-      case 'W':
       case 's':
       case 'S':
-        tokens.push({ type: TOKEN_TYPES.PREDEFINED_CLASS, position, value: escapedChar });
+      case 'w':
+      case 'W':
+        tokens.push({ position, type: TOKEN_TYPES.PREDEFINED_CLASS, value: escapedChar });
         return escapeOffset + 1;
       case 'n':
-        tokens.push({ type: TOKEN_TYPES.CHAR, position, value: '\n' });
-        return escapeOffset + 1;
-      case 't':
-        tokens.push({ type: TOKEN_TYPES.CHAR, position, value: '\t' });
+        tokens.push({ position, type: TOKEN_TYPES.CHAR, value: '\n' });
         return escapeOffset + 1;
       case 'r':
-        tokens.push({ type: TOKEN_TYPES.CHAR, position, value: '\r' });
+        tokens.push({ position, type: TOKEN_TYPES.CHAR, value: '\r' });
         return escapeOffset + 1;
-      case ' ':
-        tokens.push({ type: TOKEN_TYPES.CHAR, position, value: ' ' });
+      case 't':
+        tokens.push({ position, type: TOKEN_TYPES.CHAR, value: '\t' });
         return escapeOffset + 1;
       default:
-        tokens.push({ type: TOKEN_TYPES.CHAR, position, value: escapedChar });
+        tokens.push({ position, type: TOKEN_TYPES.CHAR, value: escapedChar });
         return escapeOffset + 1;
     }
+  }
+}
+
+function isWhitespaceCode(codePoint: number): boolean {
+  return (
+    codePoint === 32 || codePoint === 9 || codePoint === 10 || codePoint === 13 || codePoint === 12
+  );
+}
+
+function tokenTypeFromSingleCharCode(codePoint: number): TokenType | undefined {
+  switch (codePoint) {
+    case 33:
+      return TOKEN_TYPES.BANG;
+    case 36:
+      return TOKEN_TYPES.DOLLAR;
+    case 38:
+      return TOKEN_TYPES.AMPERSAND;
+    case 40:
+      return TOKEN_TYPES.LPAREN;
+    case 41:
+      return TOKEN_TYPES.RPAREN;
+    case 42:
+      return TOKEN_TYPES.STAR;
+    case 43:
+      return TOKEN_TYPES.PLUS;
+    case 44:
+      return TOKEN_TYPES.COMMA;
+    case 45:
+      return TOKEN_TYPES.DASH;
+    case 46:
+      return TOKEN_TYPES.DOT;
+    case 63:
+      return TOKEN_TYPES.QUESTION;
+    case 91:
+      return TOKEN_TYPES.LBRACKET;
+    case 93:
+      return TOKEN_TYPES.RBRACKET;
+    case 94:
+      return TOKEN_TYPES.CARET;
+    case 123:
+      return TOKEN_TYPES.LBRACE;
+    case 124:
+      return TOKEN_TYPES.PIPE;
+    case 125:
+      return TOKEN_TYPES.RBRACE;
+    default:
+      return undefined;
   }
 }

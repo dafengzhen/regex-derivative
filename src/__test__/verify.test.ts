@@ -1,5 +1,6 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { compile } from '../index.ts';
-import { describe, it, expect } from '@jest/globals';
 
 describe('Regular Expression Compiler Tests', () => {
   it('literal match', () => {

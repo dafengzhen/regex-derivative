@@ -1,12 +1,17 @@
-import { ALPHABET_MAX_CODE, END_MARKER_CODE, START_MARKER_CODE } from './ast.ts';
 import type { Dfa } from './types.ts';
 
+import { ALPHABET_MAX_CODE, END_MARKER_CODE, START_MARKER_CODE } from './ast.ts';
+
 export class Matcher {
-  private readonly initialState: number;
   private readonly acceptTable: Uint8Array;
-  private readonly transitionTable: readonly Int32Array[];
-  private readonly hasStartAnchor: boolean;
+
   private readonly hasEndAnchor: boolean;
+
+  private readonly hasStartAnchor: boolean;
+
+  private readonly initialState: number;
+
+  private readonly transitionTable: readonly Int32Array[];
 
   constructor(dfa: Dfa, hasStartAnchor: boolean, hasEndAnchor: boolean) {
     this.initialState = dfa.initialState;
